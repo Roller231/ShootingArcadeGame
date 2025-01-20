@@ -10,4 +10,5 @@ public class WeaponData : ScriptableObject
     public int totalAmmo = 100;       // Общий запас патронов
     public float fireRate = 0.2f;     // Задержка между выстрелами
     public bool isAutomatic = false; // Может ли стрелять при зажатии ЛКМ
+    public Sprite icon;
 }

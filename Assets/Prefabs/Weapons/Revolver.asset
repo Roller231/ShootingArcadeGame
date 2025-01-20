@@ -19,3 +19,4 @@ MonoBehaviour:
   totalAmmo: 440
   fireRate: 0.4
   isAutomatic: 0
+  icon: {fileID: 21300000, guid: a269dd12fd6837349878cbe7dea093b0, type: 3}

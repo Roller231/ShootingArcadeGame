@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class CrosshairController : MonoBehaviour
 {
@@ -16,6 +17,10 @@ public class CrosshairController : MonoBehaviour
     private bool isShooting = false;      // Флаг стрельбы
     private float lastShotTime;           // Время последнего выстрела
 
+    [SerializeField] private Text ammoText;
+    [SerializeField] private Image iconWeapon;
+
+
     private void Start()
     {
         Cursor.visible = false;
@@ -27,6 +32,7 @@ public class CrosshairController : MonoBehaviour
     private void Update()
     {
         UpdateCrosshairPosition();
+        UpdateUI();
 
         // Смена оружия
         if (Input.GetKeyDown(KeyCode.Alpha1)) EquipWeapon(0);
@@ -113,25 +119,41 @@ public class CrosshairController : MonoBehaviour
 
     private void FireBullet()
     {
-        // Создаем пулю из префаба
+        // Создаем пулю как визуальный объект
         GameObject bullet = Instantiate(bulletPrefab, gunBarrel.position, gunBarrel.rotation);
         Rigidbody bulletRb = bullet.GetComponent<Rigidbody>();
 
         if (bulletRb != null)
         {
-            // Находим точку на экране, куда указывает курсор мыши
+            // Направление пули определяется через Raycast
             Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
 
-            // Определяем направление пули
+            // Направление пули будет исходить из камеры в точку попадания курсора
             Vector3 direction = ray.direction;
 
             // Устанавливаем скорость пули
             bulletRb.velocity = direction * bulletSpeed;
+
+            // Проверяем попадание с помощью Raycast
+            if (Physics.Raycast(ray, out hit))
+            {
+                // Проверяем, если мы попали в врага
+                if (hit.collider.CompareTag("Enemy"))
+                {
+                    // Наносим урон врагу
+                    HealthSystem health = hit.collider.GetComponent<HealthSystem>();
+                    if (health != null)
+                    {
+                        health.TakeDamage(10f); // Наносим урон
+                        hit.collider.GetComponent<EnemyAI>().GetDamage(); // Также можно вызывать логику врага
+                    }
+                }
+            }
         }
 
         // Уничтожаем пулю через некоторое время
-        Destroy(bullet, 3f); // Пуля исчезнет через 3 секунды
+        Destroy(bullet, 3f); // Пуля исчезает через 3 секунды
     }
 
     private IEnumerator ReloadWeapon()
@@ -161,6 +183,13 @@ public class CrosshairController : MonoBehaviour
         currentWeaponIndex = index;
         currentAmmoInClip = weapons[currentWeaponIndex].maxAmmo;
 
+
         Debug.Log($"Equipped weapon: {weapons[currentWeaponIndex].weaponName}. Ammo in clip: {currentAmmoInClip}. Total ammo: {weapons[currentWeaponIndex].totalAmmo}");
+    }
+
+    private void UpdateUI()
+    {
+        ammoText.text = currentAmmoInClip + "/" + weapons[currentWeaponIndex].totalAmmo;
+        iconWeapon.sprite = weapons[currentWeaponIndex].icon;
     }
 }

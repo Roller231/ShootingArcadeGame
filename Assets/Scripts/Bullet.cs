@@ -2,20 +2,22 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    // Пуля будет просто лететь и исчезать через время
+    private void Start()
+    {
+        // Можно добавить логику визуализации, например, анимацию
+    }
+
+    private void Update()
+    {
+        // Логика для движения пули
+        // Визуализация или эффекты можно добавить здесь
+    }
+
+    // Уничтожение пули
     private void OnCollisionEnter(Collision collision)
     {
-        // Если пуля сталкивается с объектом, уничтожаем её
+        // Уничтожаем пулю при столкновении
         Destroy(gameObject);
-
-        // Можно добавить дополнительные проверки для уничтожения пули только при столкновении с врагами
-        // Например, если объект имеет компонент HealthSystem, то мы наносим урон
-        HealthSystem health = collision.gameObject.GetComponent<HealthSystem>();
-        if (health != null)
-        {
-            health.TakeDamage(10f); // Наносим урон
-            collision.gameObject.GetComponent<EnemyAI>().GetDamage();
-
-        }
-
     }
 }

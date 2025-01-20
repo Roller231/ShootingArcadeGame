@@ -118,20 +118,28 @@ public class EnemyAI : MonoBehaviour
     public void GetDamage()
     {
         if (!canAttack) return;
-        if (GetComponent<HealthSystem>().currentHealth >= attackDamage )
+
+        HealthSystem health = GetComponent<HealthSystem>();
+
+        // ѕровер€ем, если у врага достаточно здоровь€ дл€ получени€ урона
+        if (health.currentHealth > 0)
         {
-            canAttack = false;
-            isAttacking = false;
-            agent.isStopped = true;
+            // ќстанавливаем движение врага
+            agent.speed = 0f;
+            isAttacking = false; // ¬раг перестает атаковать при получении урона
+
+            // ¬ключаем анимацию получени€ урона
             animator.SetTrigger("Damage");
 
+            // ћожем использовать флаг canAttack, чтобы не дать врагу сразу снова атаковать
+            canAttack = false;
         }
     }
 
     public void AfterDamage()
     {
-
+        // ѕосле анимации получени€ урона враг может снова двигатьс€ и атаковать
         canAttack = true;
-        agent.isStopped = false;
+        agent.speed = 3.5f;
     }
 }
