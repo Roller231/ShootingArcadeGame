@@ -1,0 +1,1 @@
+The Corrupted texture works for this skin but there is a different model for it in-game.

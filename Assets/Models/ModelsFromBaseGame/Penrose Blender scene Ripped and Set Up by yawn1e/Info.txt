@@ -1,0 +1,6 @@
+Here's all of the major rooms and 1 hallway from within the Penrose, rebuilt and relit in blender!
+You're however going need to have a folder of the game's textures at hand to make it look right. You could either rip them from the game yourself or grab the zip pinned in the datamining channel. If it all appears pink just select the folder where you put the textures in from "find missing files" (look at the image).
+
+As the rooms were modeled with a top-down perspective in mind some things may look a little funny. However i've slightly reworked these rooms so that they look good (enough) from other perspectives as well. I've also seperated and sorted all of the different clutter and object models so that you'll be able to move a good chunk of it around.
+
+All of the assets were ripped straight from the game and belong to Rose-Engine!
