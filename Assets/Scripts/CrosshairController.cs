@@ -20,6 +20,8 @@ public class CrosshairController : MonoBehaviour
     [SerializeField] private Text ammoText;
     [SerializeField] private Image iconWeapon;
 
+    [SerializeField] private GameObject prefabVFXblood;
+
 
     private void Start()
     {
@@ -147,6 +149,9 @@ public class CrosshairController : MonoBehaviour
                     {
                         health.TakeDamage(10f); // Наносим урон
                         hit.collider.GetComponent<EnemyAI>().GetDamage(); // Также можно вызывать логику врага
+                        var prefab = Instantiate(prefabVFXblood, health.gameObject.transform);
+
+                        Destroy(prefab, 4f);
                     }
                 }
             }

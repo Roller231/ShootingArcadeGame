@@ -13,10 +13,14 @@ public class EnemyAI : MonoBehaviour
     private NavMeshAgent agent;                  // AI-навигация
     private Transform player;                    // Ссылка на игрока
     private float lastAttackTime;
+    private float agentSpeedSave;
 
     private bool isAttacking = false;            // Флаг состояния атаки
     private Animator animator;
     public bool canAttack;
+    public bool canGetDamage;
+    public float delayAfterDamage = 1f;     // Задержка между атаками
+
 
     // Новый параметр для игнорирования слоя "Enemy"
     public LayerMask raycastLayerMask;
@@ -25,6 +29,8 @@ public class EnemyAI : MonoBehaviour
     {
         agent = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+
+        agentSpeedSave = agent.speed;
 
         // Поиск игрока по тегу
         GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
@@ -117,7 +123,7 @@ public class EnemyAI : MonoBehaviour
 
     public void GetDamage()
     {
-        if (!canAttack) return;
+        if (!canAttack || !canGetDamage) return;
 
         HealthSystem health = GetComponent<HealthSystem>();
 
@@ -130,7 +136,7 @@ public class EnemyAI : MonoBehaviour
 
             // Включаем анимацию получения урона
             animator.SetTrigger("Damage");
-
+            StartCoroutine(delayForDamageAnim());
             // Можем использовать флаг canAttack, чтобы не дать врагу сразу снова атаковать
             canAttack = false;
         }
@@ -140,6 +146,16 @@ public class EnemyAI : MonoBehaviour
     {
         // После анимации получения урона враг может снова двигаться и атаковать
         canAttack = true;
-        agent.speed = 3.5f;
+        agent.speed = agentSpeedSave;
+
+    }
+
+    IEnumerator delayForDamageAnim()
+    {
+        canGetDamage = false;
+
+        yield return new WaitForSeconds(delayAfterDamage);
+
+        canGetDamage = true;
     }
 }
