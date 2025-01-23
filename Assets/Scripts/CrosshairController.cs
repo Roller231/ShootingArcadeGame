@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System;
 
 public class CrosshairController : MonoBehaviour
 {
@@ -22,11 +23,16 @@ public class CrosshairController : MonoBehaviour
 
     [SerializeField] private GameObject prefabVFXblood;
 
+    [SerializeField] private Transform spawnPointBlood;
+
+
 
     private void Start()
     {
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
+
+        spawnPointBlood = null;
 
         EquipWeapon(currentWeaponIndex);
     }
@@ -40,6 +46,8 @@ public class CrosshairController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha1)) EquipWeapon(0);
         if (Input.GetKeyDown(KeyCode.Alpha2)) EquipWeapon(1);
         if (Input.GetKeyDown(KeyCode.Alpha3)) EquipWeapon(2);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) EquipWeapon(3);
+        if (Input.GetKeyDown(KeyCode.Alpha5)) EquipWeapon(4);
 
         // Обработка стрельбы
         if (!isReloading)
@@ -149,9 +157,28 @@ public class CrosshairController : MonoBehaviour
                     {
                         health.TakeDamage(10f); // Наносим урон
                         hit.collider.GetComponent<EnemyAI>().GetDamage(); // Также можно вызывать логику врага
-                        var prefab = Instantiate(prefabVFXblood, health.gameObject.transform);
+                        try
+                        {
+                            spawnPointBlood = hit.collider.gameObject.GetComponentInChildren<spawnPoint>().transform;
+                        }
+                        catch (NullReferenceException)
+                        {
+                            
+                            spawnPointBlood = null;
+                        }
 
-                        Destroy(prefab, 4f);
+                        if(spawnPointBlood == null)
+
+                        {
+                            var prefab = Instantiate(prefabVFXblood, health.gameObject.transform);
+                            Destroy(prefab, 4f);
+                        }
+                        else
+                        {
+                            var prefab = Instantiate(prefabVFXblood, spawnPointBlood);
+                            Destroy(prefab, 4f);
+                        }
+
                     }
                 }
             }
