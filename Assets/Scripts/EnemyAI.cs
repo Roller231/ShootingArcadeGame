@@ -20,6 +20,7 @@ public class EnemyAI : MonoBehaviour
     public bool canAttack;
     public bool canGetDamage;
     public float delayAfterDamage = 1f;     // Задержка между атаками
+    public AudioSource sourceAttack;     // Задержка между атаками    // Задержка между атаками
 
 
     // Новый параметр для игнорирования слоя "Enemy"
@@ -71,6 +72,7 @@ public class EnemyAI : MonoBehaviour
                     if (!isAttacking)
                     {
                         StartCoroutine(AttackPlayer());
+
                     }
                     return; // Останавливаемся, если атакуем
                 }
@@ -105,6 +107,8 @@ public class EnemyAI : MonoBehaviour
                         if (player == null || GetComponent<HealthSystem>().currentHealth <= 0) break;
 
                         animator.SetTrigger("Attack");
+                        player.GetComponent<CameraControllerMover>().animator.SetTrigger("Damage");
+
                         Debug.Log($"Player took {attackDamage} damage. Current health: {playerHealth}");
                     }
 
@@ -120,6 +124,7 @@ public class EnemyAI : MonoBehaviour
     public void AttackPlayerFunc()
     {
         player.GetComponent<HealthSystem>().TakeDamage(attackDamage);
+        sourceAttack.Play();
     }
 
     public void GetDamage()

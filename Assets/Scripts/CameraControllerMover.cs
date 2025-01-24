@@ -9,7 +9,7 @@ public class CameraControllerMover : MonoBehaviour
     public float moveSpeed = 5f;  // Скорость движения камеры
     public float rotationSpeed = 2f; // Скорость вращения камеры к точке
 
-    [SerializeField] private Animator animator;
+    [SerializeField] public Animator animator;
 
     private int currentWaypointIndex = 0;
     private bool isMoving = false;

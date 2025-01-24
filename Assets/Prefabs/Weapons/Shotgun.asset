@@ -16,7 +16,10 @@ MonoBehaviour:
   damage: 40
   maxAmmo: 5
   reloadTime: 4
-  totalAmmo: 1000
+  totalAmmo: 3000
+  currentAmmo: 0
   fireRate: 0.2
   isAutomatic: 0
   icon: {fileID: 21300000, guid: 08af34fe97709104b9d5e54d0e8835a4, type: 3}
+  soundWeaponShoot: {fileID: 8300000, guid: 9fbc0517744afd34398f05acef0745bb, type: 3}
+  soundWeaponReload: {fileID: 8300000, guid: dc3effd7c8b900a40955cad8fad9fe6d, type: 3}

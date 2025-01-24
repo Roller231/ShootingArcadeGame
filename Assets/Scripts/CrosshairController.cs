@@ -5,36 +5,35 @@ using System;
 
 public class CrosshairController : MonoBehaviour
 {
-    public RectTransform crosshair;       // UI-элемент прицела
-    public Camera mainCamera;             // Камера, из которой выпускается луч
-    public WeaponData[] weapons;          // Список всех оружий
-    public int currentWeaponIndex = 0;    // Текущий индекс выбранного оружия
-    public GameObject bulletPrefab;       // Префаб пули
-    public Transform gunBarrel;           // Точка, из которой пуля будет вылетать (например, из ствола оружия)
-    public float bulletSpeed = 20f;       // Скорость пули
+    public RectTransform crosshair;
+    public Camera mainCamera;
+    public WeaponData[] weapons;
+    public int currentWeaponIndex = 0;
+    public GameObject bulletPrefab;
+    public Transform gunBarrel;
+    public float bulletSpeed = 20f;
 
-    [SerializeField] private int currentAmmoInClip; // Текущее количество патронов в магазине (сериализуемая переменная)
-    private bool isReloading = false;     // Флаг перезарядки
-    private bool isShooting = false;      // Флаг стрельбы
-    private float lastShotTime;           // Время последнего выстрела
+    private bool isReloading = false;
+    private bool isShooting = false;
+    private float lastShotTime;
 
     [SerializeField] private Text ammoText;
     [SerializeField] private Image iconWeapon;
 
     [SerializeField] private GameObject prefabVFXblood;
-
     [SerializeField] private Transform spawnPointBlood;
-
-
+    [SerializeField] private SavesController saves;
 
     private void Start()
     {
+        saves.LoadData();
         Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Confined;
 
         spawnPointBlood = null;
 
         EquipWeapon(currentWeaponIndex);
+        
     }
 
     private void Update()
@@ -42,14 +41,12 @@ public class CrosshairController : MonoBehaviour
         UpdateCrosshairPosition();
         UpdateUI();
 
-        // Смена оружия
-        if (Input.GetKeyDown(KeyCode.Alpha1)) EquipWeapon(0);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) EquipWeapon(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) EquipWeapon(2);
-        if (Input.GetKeyDown(KeyCode.Alpha4)) EquipWeapon(3);
-        if (Input.GetKeyDown(KeyCode.Alpha5)) EquipWeapon(4);
+        if (Input.GetKeyDown(KeyCode.Alpha1) && currentWeaponIndex != 0) EquipWeapon(0);
+        if (Input.GetKeyDown(KeyCode.Alpha2) && currentWeaponIndex != 1) EquipWeapon(1);
+        if (Input.GetKeyDown(KeyCode.Alpha3) && currentWeaponIndex != 2) EquipWeapon(2);
+        if (Input.GetKeyDown(KeyCode.Alpha4) && currentWeaponIndex != 3) EquipWeapon(3);
+        if (Input.GetKeyDown(KeyCode.Alpha5) && currentWeaponIndex != 4) EquipWeapon(4);
 
-        // Обработка стрельбы
         if (!isReloading)
         {
             if (weapons[currentWeaponIndex].isAutomatic)
@@ -57,6 +54,8 @@ public class CrosshairController : MonoBehaviour
                 if (Input.GetMouseButton(0) && !isShooting)
                 {
                     StartCoroutine(HandleAutomaticShooting());
+                    Cursor.visible = false;
+                    Cursor.lockState = CursorLockMode.Confined;
                 }
             }
             else
@@ -64,12 +63,13 @@ public class CrosshairController : MonoBehaviour
                 if (Input.GetMouseButtonDown(0) && !isShooting)
                 {
                     StartCoroutine(HandleSingleShot());
+                    Cursor.visible = false;
+                    Cursor.lockState = CursorLockMode.Confined;
                 }
             }
         }
 
-        // Перезарядка
-        if (Input.GetKeyDown(KeyCode.R) && !isReloading)
+        if (Input.GetKeyDown(KeyCode.R) && !isReloading && weapons[currentWeaponIndex].currentAmmo != weapons[currentWeaponIndex].maxAmmo && weapons[currentWeaponIndex].totalAmmo != 0)
         {
             StartCoroutine(ReloadWeapon());
         }
@@ -77,8 +77,7 @@ public class CrosshairController : MonoBehaviour
 
     private void UpdateCrosshairPosition()
     {
-        Vector3 mousePosition = Input.mousePosition;
-        crosshair.position = mousePosition;
+        crosshair.position = Input.mousePosition;
     }
 
     private IEnumerator HandleSingleShot()
@@ -114,17 +113,19 @@ public class CrosshairController : MonoBehaviour
 
     private void Shoot()
     {
-        if (currentAmmoInClip <= 0)
+        if (weapons[currentWeaponIndex].currentAmmo <= 0)
         {
             Debug.Log("Out of ammo in the clip! Reload your weapon.");
             return;
         }
 
-        // Создаем пулю и запускаем её
         FireBullet();
+        weapons[currentWeaponIndex].currentAmmo--;
+        GetComponent<AudioSource>().clip = weapons[currentWeaponIndex].soundWeaponShoot;
+        GetComponent<AudioSource>().Play();
+        saves.SaveData();
 
-        currentAmmoInClip--; // Уменьшаем количество патронов
-        Debug.Log($"Shot fired! Remaining ammo in clip: {currentAmmoInClip}. Total ammo left: {weapons[currentWeaponIndex].totalAmmo}");
+        Debug.Log($"Shot fired! Ammo in clip: {weapons[currentWeaponIndex].currentAmmo}. Total ammo left: {weapons[currentWeaponIndex].totalAmmo}");
     }
 
     private void FireBullet()
@@ -155,19 +156,22 @@ public class CrosshairController : MonoBehaviour
                     HealthSystem health = hit.collider.GetComponent<HealthSystem>();
                     if (health != null)
                     {
-                        health.TakeDamage(10f); // Наносим урон
+                        health.TakeDamage(weapons[currentWeaponIndex].damage); // Наносим урон
                         hit.collider.GetComponent<EnemyAI>().GetDamage(); // Также можно вызывать логику врага
+
+                        GetComponent<UtilScripts>().PlaySound(hit.collider.GetComponent<AudioSource>());
+
                         try
                         {
                             spawnPointBlood = hit.collider.gameObject.GetComponentInChildren<spawnPoint>().transform;
                         }
                         catch (NullReferenceException)
                         {
-                            
+
                             spawnPointBlood = null;
                         }
 
-                        if(spawnPointBlood == null)
+                        if (spawnPointBlood == null)
 
                         {
                             var prefab = Instantiate(prefabVFXblood, health.gameObject.transform);
@@ -188,40 +192,48 @@ public class CrosshairController : MonoBehaviour
         Destroy(bullet, 3f); // Пуля исчезает через 3 секунды
     }
 
+
     private IEnumerator ReloadWeapon()
     {
+
+        GetComponent<AudioSource>().clip = weapons[currentWeaponIndex].soundWeaponReload;
+        GetComponent<AudioSource>().Play();
+
         isReloading = true;
         Debug.Log("Reloading...");
         yield return new WaitForSeconds(weapons[currentWeaponIndex].reloadTime);
 
-        int ammoNeeded = weapons[currentWeaponIndex].maxAmmo - currentAmmoInClip;
+        int ammoNeeded = weapons[currentWeaponIndex].maxAmmo - weapons[currentWeaponIndex].currentAmmo;
         int ammoToReload = Mathf.Min(ammoNeeded, weapons[currentWeaponIndex].totalAmmo);
 
-        currentAmmoInClip += ammoToReload;
+        weapons[currentWeaponIndex].currentAmmo += ammoToReload;
         weapons[currentWeaponIndex].totalAmmo -= ammoToReload;
 
-        Debug.Log($"Reload complete! Ammo in clip: {currentAmmoInClip}. Total ammo left: {weapons[currentWeaponIndex].totalAmmo}");
+        Debug.Log($"Reload complete! Ammo in clip: {weapons[currentWeaponIndex].currentAmmo}. Total ammo left: {weapons[currentWeaponIndex].totalAmmo}");
         isReloading = false;
+
+        saves.SaveData();
     }
 
     private void EquipWeapon(int index)
     {
+
+
+
         if (index < 0 || index >= weapons.Length)
         {
             Debug.LogError("Invalid weapon index!");
             return;
         }
+        saves.LoadData();
 
         currentWeaponIndex = index;
-        currentAmmoInClip = weapons[currentWeaponIndex].maxAmmo;
-
-
-        Debug.Log($"Equipped weapon: {weapons[currentWeaponIndex].weaponName}. Ammo in clip: {currentAmmoInClip}. Total ammo: {weapons[currentWeaponIndex].totalAmmo}");
+        Debug.Log($"Equipped weapon: {weapons[currentWeaponIndex].weaponName}. Ammo in clip: {weapons[currentWeaponIndex].currentAmmo}. Total ammo: {weapons[currentWeaponIndex].totalAmmo}");
     }
 
     private void UpdateUI()
     {
-        ammoText.text = currentAmmoInClip + "/" + weapons[currentWeaponIndex].totalAmmo;
+        ammoText.text = weapons[currentWeaponIndex].currentAmmo + "/" + weapons[currentWeaponIndex].totalAmmo;
         iconWeapon.sprite = weapons[currentWeaponIndex].icon;
     }
 }

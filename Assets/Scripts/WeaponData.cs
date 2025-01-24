@@ -8,7 +8,10 @@ public class WeaponData : ScriptableObject
     public int maxAmmo;               // Максимальное количество патронов в магазине
     public float reloadTime;          // Время перезарядки
     public int totalAmmo = 100;       // Общий запас патронов
+    public int currentAmmo;
     public float fireRate = 0.2f;     // Задержка между выстрелами
     public bool isAutomatic = false; // Может ли стрелять при зажатии ЛКМ
     public Sprite icon;
+    public AudioClip soundWeaponShoot;
+    public AudioClip soundWeaponReload;
 }
