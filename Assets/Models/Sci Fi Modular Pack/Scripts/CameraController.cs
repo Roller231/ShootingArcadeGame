@@ -43,7 +43,7 @@ public class CameraController : MonoBehaviour
         Move();
     }
 
-    private void Move()
+    public void Move()
     {
         if(LockMouse)
         {

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CameraControllerMover : MonoBehaviour
 {
@@ -14,23 +15,34 @@ public class CameraControllerMover : MonoBehaviour
     private int currentWaypointIndex = 0;
     private bool isMoving = false;
 
+    [SerializeField] private Image health_bar;
+
     private void Start()
     {
-        if (waypoints.Length > 0)
-        {
-            // Устанавливаем начальную позицию и ориентацию камеры
-            transform.position = waypoints[0].position;
-            transform.rotation = waypoints[0].rotation;
-        }
+        //if (waypoints.Length > 0)
+        //{
+        //    // Устанавливаем начальную позицию и ориентацию камеры
+        //    transform.position = waypoints[0].position;
+        //    transform.rotation = waypoints[0].rotation;
+        //}
     }
 
     private void Update()
     {
         // Проверяем нажатие левой кнопки мыши и запускаем движение к следующей точке
-        if (Input.GetMouseButtonDown(1) && !isMoving && waypoints.Length > 0)
-        {
-            StartCoroutine(MoveToNextWaypoint());
-        }
+        //if (Input.GetMouseButtonDown(1) && !isMoving && waypoints.Length > 0)
+        //{
+        //    StartCoroutine(MoveToNextWaypoint());
+        //}
+
+        health_bar.fillAmount = GetComponent<HealthSystem>().currentHealth / 100;
+
+
+    }
+    public void StartMove()
+    {
+        StartCoroutine(MoveToNextWaypoint());
+
     }
 
     private IEnumerator MoveToNextWaypoint()
@@ -64,8 +76,10 @@ public class CameraControllerMover : MonoBehaviour
             yield return null;
         }
 
+        waypoints[currentWaypointIndex].gameObject.GetComponent<WavesObject>().StartWave();
         // Переключение на следующую точку
         currentWaypointIndex = (currentWaypointIndex + 1) % waypoints.Length;
+
         isMoving = false;
         animator.SetBool("IsWalking", false);
 

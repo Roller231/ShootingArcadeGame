@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 public class HealthSystem : MonoBehaviour
 {
@@ -25,6 +26,12 @@ public class HealthSystem : MonoBehaviour
 
     private void Die()
     {
+        if(gameObject.tag == "Player")
+        {
+            SceneManager.LoadScene(0);
+        }
+
+
         Debug.Log($"{gameObject.name} has died!");
         //Destroy(gameObject); // ”ничтожить объект при смерти
         GetComponent<Animator>().SetTrigger("Die");

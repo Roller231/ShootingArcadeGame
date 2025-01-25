@@ -41,11 +41,15 @@ public class CrosshairController : MonoBehaviour
         UpdateCrosshairPosition();
         UpdateUI();
 
-        if (Input.GetKeyDown(KeyCode.Alpha1) && currentWeaponIndex != 0) EquipWeapon(0);
-        if (Input.GetKeyDown(KeyCode.Alpha2) && currentWeaponIndex != 1) EquipWeapon(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3) && currentWeaponIndex != 2) EquipWeapon(2);
-        if (Input.GetKeyDown(KeyCode.Alpha4) && currentWeaponIndex != 3) EquipWeapon(3);
-        if (Input.GetKeyDown(KeyCode.Alpha5) && currentWeaponIndex != 4) EquipWeapon(4);
+        if(!isReloading)
+        {
+            if (Input.GetKeyDown(KeyCode.Alpha1) && currentWeaponIndex != 0) EquipWeapon(0);
+            if (Input.GetKeyDown(KeyCode.Alpha2) && currentWeaponIndex != 1) EquipWeapon(1);
+            if (Input.GetKeyDown(KeyCode.Alpha3) && currentWeaponIndex != 2) EquipWeapon(2);
+            if (Input.GetKeyDown(KeyCode.Alpha4) && currentWeaponIndex != 3) EquipWeapon(3);
+            if (Input.GetKeyDown(KeyCode.Alpha5) && currentWeaponIndex != 4) EquipWeapon(4);
+        }
+
 
         if (!isReloading)
         {

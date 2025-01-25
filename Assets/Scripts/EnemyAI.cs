@@ -22,6 +22,8 @@ public class EnemyAI : MonoBehaviour
     public float delayAfterDamage = 1f;     // Задержка между атаками
     public AudioSource sourceAttack;     // Задержка между атаками    // Задержка между атаками
 
+    public bool enemyActive;
+
 
     // Новый параметр для игнорирования слоя "Enemy"
     public LayerMask raycastLayerMask;
@@ -33,30 +35,38 @@ public class EnemyAI : MonoBehaviour
         if(animator == null) animator = GetComponentInChildren<Animator>();
 
         agentSpeedSave = agent.speed;
+        TryStartRun();
 
+
+    }
+
+    void TryStartRun()
+    {
         // Поиск игрока по тегу
         GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
-        if (playerObject != null)
+        if (playerObject != null && enemyActive)
         {
             player = playerObject.transform;
             animator.SetBool("IsRun", true);
         }
         else
         {
-            Debug.LogError("Player not found! Make sure the player has the correct tag.");
         }
     }
 
     private void Update()
     {
-        if (player == null || GetComponent<HealthSystem>().currentHealth <= 0) return;
+        TryStartRun();
+
+
+        if (player == null || GetComponent<HealthSystem>().currentHealth <= 0 || !enemyActive) return;
 
         // Проверяем расстояние до игрока
         float distanceToPlayer = Vector3.Distance(transform.position, player.position);
 
         // Если игрок в пределах дистанции атаки, пытаемся атаковать
         if (distanceToPlayer <= attackDistance)
-        {
+        { 
             // Выпускаем луч (Raycast) от врага к игроку
             Ray ray = new Ray(transform.position + Vector3.up, (player.position - transform.position).normalized);
             RaycastHit hit;
