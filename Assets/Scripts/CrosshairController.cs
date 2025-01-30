@@ -150,8 +150,11 @@ public class CrosshairController : MonoBehaviour
             // Устанавливаем скорость пули
             bulletRb.velocity = direction * bulletSpeed;
 
-            // Проверяем попадание с помощью Raycast
-            if (Physics.Raycast(ray, out hit))
+            // Определяем LayerMask, чтобы игнорировать слой Weapon
+            int layerMask = ~(1 << LayerMask.NameToLayer("Weapon"));  // Игнорируем слой Weapon
+
+            // Проверяем попадание с помощью Raycast, исключая объекты на слое Weapon
+            if (Physics.Raycast(ray, out hit, Mathf.Infinity, layerMask))
             {
                 // Проверяем, если мы попали в врага
                 if (hit.collider.CompareTag("Enemy"))
@@ -171,12 +174,10 @@ public class CrosshairController : MonoBehaviour
                         }
                         catch (NullReferenceException)
                         {
-
                             spawnPointBlood = null;
                         }
 
                         if (spawnPointBlood == null)
-
                         {
                             var prefab = Instantiate(prefabVFXblood, health.gameObject.transform);
                             Destroy(prefab, 4f);
@@ -186,7 +187,6 @@ public class CrosshairController : MonoBehaviour
                             var prefab = Instantiate(prefabVFXblood, spawnPointBlood);
                             Destroy(prefab, 4f);
                         }
-
                     }
                 }
             }
@@ -195,6 +195,7 @@ public class CrosshairController : MonoBehaviour
         // Уничтожаем пулю через некоторое время
         Destroy(bullet, 3f); // Пуля исчезает через 3 секунды
     }
+
 
 
     private IEnumerator ReloadWeapon()

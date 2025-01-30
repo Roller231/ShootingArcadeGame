@@ -18,6 +18,8 @@ public class AmmoWeapon : MonoBehaviour
         {
             isPlayerInTrigger = true;
             canvasButton.SetActive(true);
+            GetComponent<Outline>().OutlineWidth = 4;
+
         }
     }
 
@@ -28,6 +30,7 @@ public class AmmoWeapon : MonoBehaviour
         {
             isPlayerInTrigger = false;
             canvasButton.SetActive(false);
+            GetComponent<Outline>().OutlineWidth = 0;
 
         }
     }
